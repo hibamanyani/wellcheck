@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-WellcheckApplication<wellcheck>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.wellcheck.wellcheck.WellcheckApplication",
+            "projectName": "wellcheck",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
