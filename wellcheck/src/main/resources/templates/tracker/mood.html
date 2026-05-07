@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>WellCheck — Mood Tracker</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f7f4; padding: 2rem; }
+        .card { background: white; border-radius: 12px; padding: 2rem; max-width: 550px; margin: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #2d6a4f; margin-bottom: 0.5rem; }
+        .nav { margin-bottom: 1.5rem; }
+        .nav a { color: #2d6a4f; margin-right: 1rem; text-decoration: none; font-size: 14px; }
+        .section-title { font-size: 14px; font-weight: bold; color: #444; margin: 1.2rem 0 0.5rem; }
+        .emoji-row { display: flex; gap: 10px; margin-bottom: 8px; }
+        .emoji-btn { flex: 1; padding: 12px 0; font-size: 1.6rem; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .emoji-btn:hover { border-color: #2d6a4f; background: #f0f7f4; }
+        .emoji-btn.selected { border-color: #2d6a4f; background: #d1fae5; }
+        .emoji-label { font-size: 11px; color: #888; text-align: center; margin-top: 4px; }
+        textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 80px; margin-top: 4px; }
+        button[type="submit"] { background: #2d6a4f; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 15px; margin-top: 1.2rem; width: 100%; }
+        button[type="submit"]:hover { background: #1b4332; }
+        .today-display { display: flex; gap: 12px; margin: 1rem 0; }
+        .score-box { flex: 1; background: #f8f9fa; border-radius: 10px; padding: 12px; text-align: center; }
+        .score-val { font-size: 2rem; font-weight: bold; color: #2d6a4f; }
+        .score-lbl { font-size: 12px; color: #888; margin-top: 2px; }
+        .history { margin-top: 2rem; }
+        .history h2 { color: #2d6a4f; font-size: 16px; margin-bottom: 10px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f8f9fa; border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
+        .scores { display: flex; gap: 8px; }
+        .badge { padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
+        .mood-badge { background: #2d6a4f; }
+        .energy-badge { background: #457b9d; }
+        input[type="hidden"] { display: none; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="nav">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+
+    <h1>😊 Mood Tracker</h1>
+    <p style="color:#555; margin-bottom:1rem">How are you feeling today?</p>
+
+    <!-- Today's scores display -->
+    <div class="today-display" th:if="${log.moodScore > 0}">
+        <div class="score-box">
+            <div class="score-val" th:text="${log.moodScore} + '/5'"></div>
+            <div class="score-lbl">Mood</div>
+        </div>
+        <div class="score-box">
+            <div class="score-val" th:text="${log.energyScore} + '/5'"></div>
+            <div class="score-lbl">Energy</div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form th:action="@{/mood}" method="post" id="moodForm">
+
+        <!-- Mood score -->
+        <div class="section-title">😊 How is your mood today ?</div>
+        <div class="emoji-row">
+            <div onclick="selectMood(1)">
+                <button type="button" class="emoji-btn" id="mood-1">😢</button>
+                <div class="emoji-label">Awful</div>
+            </div>
+            <div onclick="selectMood(2)">
+                <button type="button" class="emoji-btn" id="mood-2">😕</button>
+                <div class="emoji-label">Bad</div>
+            </div>
+            <div onclick="selectMood(3)">
+                <button type="button" class="emoji-btn" id="mood-3">😐</button>
+                <div class="emoji-label">Okay</div>
+            </div>
+            <div onclick="selectMood(4)">
+                <button type="button" class="emoji-btn" id="mood-4">😊</button>
+                <div class="emoji-label">Good</div>
+            </div>
+            <div onclick="selectMood(5)">
+                <button type="button" class="emoji-btn" id="mood-5">😄</button>
+                <div class="emoji-label">Great</div>
+            </div>
+        </div>
+        <input type="hidden" name="mood" id="moodInput" th:value="${log.moodScore}" />
+
+        <!-- Energy score -->
+        <div class="section-title">⚡ What is your energy level ?</div>
+        <div class="emoji-row">
+            <div onclick="selectEnergy(1)">
+                <button type="button" class="emoji-btn" id="energy-1">🪫</button>
+                <div class="emoji-label">Drained</div>
+            </div>
+            <div onclick="selectEnergy(2)">
+                <button type="button" class="emoji-btn" id="energy-2">😴</button>
+                <div class="emoji-label">Tired</div>
+            </div>
+            <div onclick="selectEnergy(3)">
+                <button type="button" class="emoji-btn" id="energy-3">😑</button>
+                <div class="emoji-label">Neutral</div>
+            </div>
+            <div onclick="selectEnergy(4)">
+                <button type="button" class="emoji-btn" id="energy-4">😀</button>
+                <div class="emoji-label">Active</div>
+            </div>
+            <div onclick="selectEnergy(5)">
+                <button type="button" class="emoji-btn" id="energy-5">⚡</button>
+                <div class="emoji-label">Energized</div>
+            </div>
+        </div>
+        <input type="hidden" name="energy" id="energyInput" th:value="${log.energyScore}" />
+
+        <!-- Note -->
+        <div class="section-title">📝 Add a note (optional)</div>
+        <textarea name="note"
+                  placeholder="What affected your mood today?"
+                  th:text="${log.note}"></textarea>
+
+        <button type="submit">💾 Save today's mood</button>
+    </form>
+
+    <!-- History -->
+    <div class="history" th:if="${!history.isEmpty()}">
+        <h2>📅 Last 7 days</h2>
+        <div th:each="entry : ${history}" class="history-item">
+            <span th:text="${entry.date}"></span>
+            <div class="scores">
+                <span class="badge mood-badge"
+                      th:text="'😊 ' + ${entry.moodScore} + '/5'"></span>
+                <span class="badge energy-badge"
+                      th:text="'⚡ ' + ${entry.energyScore} + '/5'"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Restore selected state on page load
+    const savedMood = document.getElementById('moodInput').value;
+    const savedEnergy = document.getElementById('energyInput').value;
+    if (savedMood > 0) highlightMood(savedMood);
+    if (savedEnergy > 0) highlightEnergy(savedEnergy);
+
+    function selectMood(val) {
+        document.getElementById('moodInput').value = val;
+        highlightMood(val);
+    }
+
+    function highlightMood(val) {
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById('mood-' + i).classList.remove('selected');
+        }
+        document.getElementById('mood-' + val).classList.add('selected');
+    }
+
+    function selectEnergy(val) {
+        document.getElementById('energyInput').value = val;
+        highlightEnergy(val);
+    }
+
+    function highlightEnergy(val) {
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById('energy-' + i).classList.remove('selected');
+        }
+        document.getElementById('energy-' + val).classList.add('selected');
+    }
+</script>
+</body>
+</html>
