@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>WellCheck — Sleep Logger</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f7f4; padding: 2rem; }
+        .card { background: white; border-radius: 12px; padding: 2rem; max-width: 550px; margin: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #2d6a4f; margin-bottom: 0.5rem; }
+        label { font-size: 14px; color: #555; display: block; margin-bottom: 4px; margin-top: 12px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        button { background: #2d6a4f; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 15px; margin-top: 16px; }
+        button:hover { background: #1b4332; }
+        .warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px 14px; border-radius: 6px; margin: 1rem 0; color: #856404; font-size: 14px; }
+        .good { background: #d1fae5; border-left: 4px solid #2d6a4f; padding: 10px 14px; border-radius: 6px; margin: 1rem 0; color: #065f46; font-size: 14px; }
+        .history { margin-top: 2rem; }
+        .history h2 { color: #2d6a4f; font-size: 16px; margin-bottom: 10px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f8f9fa; border-radius: 8px; margin-bottom: 6px; font-size: 14px; }
+        .hours-badge { background: #2d6a4f; color: white; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .hours-low { background: #e63946; }
+        .nav { margin-bottom: 1.5rem; }
+        .nav a { color: #2d6a4f; margin-right: 1rem; text-decoration: none; font-size: 14px; }
+        .big-display { text-align: center; font-size: 3rem; font-weight: bold; color: #2d6a4f; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="nav">
+        <a th:href="@{/dashboard}">🏠 Dashboard</a>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+
+    <h1>😴 Sleep Logger</h1>
+    <p style="color:#555; margin-bottom:1rem">How many hours did you sleep last night?</p>
+
+    <!-- Big display of today's sleep -->
+    <div class="big-display" th:text="${log.hoursSlept} + 'h'"></div>
+
+    <!-- Warning or good message -->
+    <div class="warning" th:if="${belowRecommended}">
+        ⚠️ You slept less than 8 hours. Try to get more rest tonight!
+    </div>
+    <div class="good" th:if="${log.hoursSlept >= 8}">
+        ✅ Great sleep! You got the recommended 8+ hours.
+    </div>
+    <div th:if="${log.hoursSlept == 0}" style="color:#999; font-size:13px; margin-bottom:8px">
+        No sleep logged yet for today.
+    </div>
+
+    <!-- Form to log sleep -->
+    <form th:action="@{/sleep}" method="post">
+        <label>Hours slept last night :</label>
+        <input type="number"
+               name="hours"
+               min="0"
+               max="24"
+               step="0.5"
+               th:value="${log.hoursSlept}"
+               placeholder="e.g. 7.5" />
+        <button type="submit">💾 Save</button>
+    </form>
+
+    <!-- Last 7 days history -->
+    <div class="history" th:if="${!history.isEmpty()}">
+        <h2>📅 Last 7 nights</h2>
+        <div th:each="entry : ${history}" class="history-item">
+            <span th:text="${entry.date}"></span>
+            <span class="hours-badge"
+                  th:classappend="${entry.hoursSlept < 8} ? 'hours-low' : ''"
+                  th:text="${entry.hoursSlept} + 'h'">
+            </span>
+        </div>
+    </div>
+</div>
+</body>
+</html>
