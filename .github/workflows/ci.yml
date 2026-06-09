@@ -79,7 +79,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t wellcheck:latest ./wellcheck
+        run: |
+  cp Dockerfile wellcheck/Dockerfile
+  docker build -t wellcheck:latest ./wellcheck
 
       - name: Confirm build
         run: docker images wellcheck
