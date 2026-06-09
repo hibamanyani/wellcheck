@@ -16,8 +16,8 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB:       wellcheck_test
-          POSTGRES_USER:     postgres
+          POSTGRES_DB: wellcheck_test
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: secret
         ports:
           - 5432:5432
@@ -78,10 +78,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Copy Dockerfile into wellcheck folder
+        run: cp Dockerfile wellcheck/Dockerfile
+
       - name: Build Docker image
-        run: |
-  cp Dockerfile wellcheck/Dockerfile
-  docker build -t wellcheck:latest ./wellcheck
+        run: docker build -t wellcheck:latest ./wellcheck
 
       - name: Confirm build
         run: docker images wellcheck
