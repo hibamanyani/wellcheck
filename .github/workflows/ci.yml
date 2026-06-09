@@ -53,19 +53,13 @@ jobs:
           EOF
 
       - name: Build with Maven
-        run: |
-          cd wellcheck
-          mvn clean compile -B
+        run: cd wellcheck && mvn clean compile -B
 
       - name: Run tests
-        run: |
-          cd wellcheck
-          mvn test -B -Dspring.profiles.active=test
+        run: cd wellcheck && mvn test -B -Dspring.profiles.active=test
 
       - name: Package JAR
-        run: |
-          cd wellcheck
-          mvn package -DskipTests -B
+        run: cd wellcheck && mvn package -DskipTests -B
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
